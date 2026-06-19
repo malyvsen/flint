@@ -1,0 +1,24 @@
+version: "3"
+
+tasks:
+  init:
+    desc: Set up the development environment
+    deps: [prereqs]
+    cmds:
+      - git config core.hooksPath scripts/git-hooks
+      - uv sync --all-packages --all-groups --all-extras --locked
+
+  check:
+    desc: Run all automated checks
+    deps: [init]
+    vars:
+      PROJECTS:
+        sh: find . -mindepth 2 -name Taskfile.yml -exec dirname {} \;
+    cmds:
+      - for: { var: PROJECTS, as: PROJECT }
+        cmd: task -d {{.PROJECT}} check
+
+  prereqs:
+    desc: Check that required programs are installed
+    cmds:
+      - bash scripts/check-prereqs.sh

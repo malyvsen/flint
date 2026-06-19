@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  init:
+    desc: Set up the development environment
+    cmds:
+      - git config core.hooksPath scripts/git-hooks
+
+  check:
+    desc: Run all automated checks
+    cmds:
+      - echo "No checks yet"
