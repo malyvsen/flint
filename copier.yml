@@ -10,16 +10,16 @@ repo_size:
 _tasks:
   - command: git init -q
 
-  # Monorepo root is a bare workspace container; --bare skips .python-version, so pin it explicitly.
+  # Monorepo root is a bare workspace container; --bare skips .python-version, so pin explicitly.
   - command: >-
       PY=$(uv python list --only-downloads | grep -E '^cpython-[0-9]+\.[0-9]+\.[0-9]+-' | head -1 | sed -E 's/^cpython-([0-9]+\.[0-9]+).*/\1/');
       uv init --bare --vcs none --python "$PY" && uv python pin "$PY"
     when: "{{ repo_size == 'monorepo' }}"
 
-  # Single-package repo is a real package; non-bare uv init writes .python-version itself.
+  # Single-package repo's root is the package itself; --package gives it a src layout.
   - command: >-
       PY=$(uv python list --only-downloads | grep -E '^cpython-[0-9]+\.[0-9]+\.[0-9]+-' | head -1 | sed -E 's/^cpython-([0-9]+\.[0-9]+).*/\1/');
-      uv init --vcs none --python "$PY"
+      uv init --package --vcs none --python "$PY"
     when: "{{ repo_size == 'single-package' }}"
 
   - command: uv add --dev ruff deptry ty pytest
