@@ -1,0 +1,25 @@
+---
+description: Git commit message conventions
+alwaysApply: true
+---
+
+# Commit messages
+
+Format: `type: message`. Keep messages short — no extended descriptions.
+
+| Type       | Use for                                  |
+| ---------- | ---------------------------------------- |
+| `build`    | Build tooling, including Taskfiles       |
+| `chore`    | Miscellaneous housekeeping               |
+| `ci`       | CI configuration                         |
+| `docs`     | Documentation and comments               |
+| `feat`     | New or improved end-user behavior        |
+| `fix`      | Bug fixes in end-user behavior           |
+| `refactor` | Internal changes with no behavior change |
+| `test`     | Test code                                |
+
+If in doubt, what changed is more important than how it changed: test fixes are still `test`, build improvements are still `build`, and so on.
+
+# Rewriting commits
+
+It's okay to amend the last commit if it was made by you and the amendment increases clarity.

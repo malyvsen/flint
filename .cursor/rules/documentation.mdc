@@ -1,0 +1,16 @@
+---
+description: Documentation & comment style
+alwaysApply: true
+---
+
+# Documentation & comment style
+
+This applies both to dedicated documentation files and to comments in code.
+
+1. Be brief.
+2. Prefer rewriting old documentation over adding to it.
+3. Do not document details that are prone to change, except when colocated with these details. We do not want documentation to go stale easily, so - when e.g. writing a README - do write about the general idea of how things work, but do not mention specific variable names unless those are at the very core of things and thus unlikely to change. If possible, avoid making lists which will need to be updated continuously.
+4. Do document the reason certain choices were made, but only if the choice is unintuitive or project-specific. Do not document what is obvious from the code itself.
+5. Colocate documentation with the code it describes - if it talks about a variable, put it in a comment next to the variable declaration, not at the top of the file.
+6. Documentation should always read as if it's been written this way from scratch. When updating documentation after a change, do not overly focus on the change itself, but rather on the new state of the codebase overall.
+7. Prefer enforcing rules strictly over documenting them.

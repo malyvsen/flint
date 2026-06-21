@@ -1,0 +1,10 @@
+---
+description: Coding conventions
+alwaysApply: true
+---
+
+# Coding conventions
+
+1. Follow newspaper style: the most important things in a file should land at its top. This can typically be achieved by placing the top-level callers at the top, and utilities they use below them.
+2. Be intentional about impurity in your code - as much as possible should be pure, with side effects happening only at the edges.
+3. Fail fast and loud. If somethings goes wrong unexpectedly, things should crash and burn rather than silently continuing.

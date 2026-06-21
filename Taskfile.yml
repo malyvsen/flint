@@ -5,8 +5,30 @@ tasks:
     desc: Set up the development environment
     cmds:
       - git config core.hooksPath scripts/git-hooks
+      - uv sync --locked
 
   check:
     desc: Run all automated checks
     cmds:
-      - echo "No checks yet"
+      - task: check-dogfood
+
+  dogfood:
+    desc: Regenerate flint's own .cursor from the template
+    cmds:
+      - |
+        tmp=$(mktemp -d)
+        uv run copier copy --trust --skip-tasks --defaults --data repo_size=single-package --vcs-ref=HEAD -q . "$tmp"
+        rm -rf .cursor && cp -r "$tmp/.cursor" .cursor
+
+  check-dogfood:
+    desc: Verify flint's .cursor matches the template
+    cmds:
+      - |
+        tmp=$(mktemp -d)
+        uv run copier copy --trust --skip-tasks --defaults --data repo_size=single-package --vcs-ref=HEAD -q . "$tmp"
+        diff -r .cursor "$tmp/.cursor"
+
+  new:
+    desc: Create a new repository from the template
+    cmds:
+      - uv run copier copy --trust --vcs-ref=HEAD . {{.CLI_ARGS}}

@@ -1,0 +1,40 @@
+version: "3"
+
+tasks:
+  check:
+    desc: Run all checks
+    deps: [ruff, ty, pytest, deptry]
+
+  pytest:
+    desc: Run unit tests
+    sources:
+      - "**/*.py"
+      - pyproject.toml
+    cmds:
+      - uv run --no-sync pytest
+
+  ruff:
+    desc: Check linting and formatting
+    sources:
+      - "**/*.py"
+      - pyproject.toml
+    cmds:
+      - uv run --no-sync ruff check .
+      - uv run --no-sync ruff format --check .
+
+  ty:
+    desc: Check typing
+    sources:
+      - "**/*.py"
+      - pyproject.toml
+    cmds:
+      - uv run --no-sync ty check
+
+  deptry:
+    desc: Check for dependency issues
+    sources:
+      - "**/*.py"
+      - pyproject.toml
+      - uv.lock
+    cmds:
+      - uv run --no-sync deptry .

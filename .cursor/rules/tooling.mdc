@@ -1,0 +1,10 @@
+---
+description: Rules around development tooling
+alwaysApply: true
+---
+
+# Development tooling rules
+
+Use Task when possible (e.g. `task dev` instead of `cargo tauri dev`).
+
+Prefer using CLI tools over manual operation if possible, e.g. `cp` instead of manually writing to the destination file.

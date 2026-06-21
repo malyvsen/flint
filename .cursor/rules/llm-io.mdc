@@ -1,0 +1,26 @@
+---
+description:Guidelines regarding writing code which communicates with LLMs
+alwaysApply: true
+---
+
+# LLM I/O guidelines
+
+## Isolate LLM-facing types from the rest of the codebase
+
+*Why? Because you'll be optimizing their structure and you don't want to change code when you do.*
+
+Keep types used for LLM I/O separate from the types you use in code, and convert between them as close to the LLM call as possible.
+
+## Optimize LLM-facing types freely
+
+When naming and defining the structure of LLM-facing types, think only about the LLM's understanding of it - do not apply any coding conventions.
+
+## Constrain LLM generation when possible
+
+Instead of asking the LLM politely to generate dates in YYYY-MM-DD format, use a type which enforces it ("day", "month", "year" fields).
+
+## Make prompts situational
+
+*Why? Stops the LLM from getting distracted.*
+
+Prompts should only include information that the LLM needs to know *right now*. If the need for information is conditional, add it under that condition only.

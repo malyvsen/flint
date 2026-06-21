@@ -5,9 +5,13 @@ alwaysApply: true
 
 # Commit messages
 
+{% if repo_size == 'monorepo' -%}
 Format: `type(scope): message`. Keep messages short — no extended descriptions.
 
 The scope is the affected project folder (the one containing the relevant Taskfile), comma-separated if multiple, i.e. `path/to/folder, path/to/other/folder`. Omit it when changes are repo-wide, i.e. write `type: message` in such cases.
+{%- else -%}
+Format: `type: message`. Keep messages short — no extended descriptions.
+{%- endif %}
 
 | Type       | Use for                                  |
 | ---------- | ---------------------------------------- |
