@@ -14,6 +14,9 @@ tasks:
 
   dogfood:
     desc: Regenerate flint's own .cursor from the template
+    # Generating from self, so dirty working-tree changes are expected and wanted.
+    env:
+      PYTHONWARNINGS: ignore:Dirty template changes:UserWarning
     cmds:
       - |
         tmp=$(mktemp -d)
@@ -22,6 +25,8 @@ tasks:
 
   check-dogfood:
     desc: Verify flint's .cursor matches the template
+    env:
+      PYTHONWARNINGS: ignore:Dirty template changes:UserWarning
     cmds:
       - |
         tmp=$(mktemp -d)
