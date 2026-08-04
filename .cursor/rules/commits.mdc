@@ -14,11 +14,11 @@ Format: `type: message`. Keep messages short — no extended descriptions.
 | `ci`       | CI configuration                         |
 | `docs`     | Documentation and comments               |
 | `feat`     | New or improved end-user behavior        |
-| `fix`      | Bug fixes in end-user behavior           |
+| `fix`      | Bug fixes and the tests that catch them  |
 | `refactor` | Internal changes with no behavior change |
-| `test`     | Test code                                |
+| `test`     | Test-only changes                        |
 
-If in doubt, what changed is more important than how it changed: test fixes are still `test`, build improvements are still `build`, and so on.
+If in doubt, what changed is more important than how it changed: fixing broken tests is still `test`, build improvements are still `build`, and so on.
 
 # Rewriting commits
 
