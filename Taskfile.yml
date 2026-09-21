@@ -13,7 +13,7 @@ tasks:
       - task: check-dogfood
 
   dogfood:
-    desc: Regenerate flint's own .cursor from the template
+    desc: Regenerate flint's own agent instructions from the template
     # Generating from self, so dirty working-tree changes are expected and wanted.
     env:
       PYTHONWARNINGS: ignore:Dirty template changes:UserWarning
@@ -21,17 +21,17 @@ tasks:
       - |
         tmp=$(mktemp -d)
         uv run copier copy --trust --skip-tasks --defaults --data repo_size=single-package --vcs-ref=HEAD -q . "$tmp"
-        rm -rf .cursor && cp -r "$tmp/.cursor" .cursor
+        cp "$tmp/AGENTS.md" AGENTS.md
 
   check-dogfood:
-    desc: Verify flint's .cursor matches the template
+    desc: Verify flint's agent instructions match the template
     env:
       PYTHONWARNINGS: ignore:Dirty template changes:UserWarning
     cmds:
       - |
         tmp=$(mktemp -d)
         uv run copier copy --trust --skip-tasks --defaults --data repo_size=single-package --vcs-ref=HEAD -q . "$tmp"
-        diff -r .cursor "$tmp/.cursor"
+        diff AGENTS.md "$tmp/AGENTS.md"
 
   new:
     desc: Create a new repository from the template
