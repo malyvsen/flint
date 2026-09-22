@@ -26,6 +26,12 @@ tasks:
       - task: python:check
 {%- endif %}
 
+  fix:
+    desc: Apply safe formatting and lint fixes
+    cmds:
+      - uv run --no-sync ruff check --fix .
+      - uv run --no-sync ruff format .
+
   prereqs:
     desc: Check that required programs are installed
     cmds:

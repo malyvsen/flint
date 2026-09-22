@@ -9,16 +9,19 @@ main() {
 	render python single-package
 	expect python-single-package Taskfile.yml taskfiles/python.yml
 	reject python-single-package package.json apps libs taskfiles/rust.yml
+	expect_match python-single-package Taskfile.yml '^  fix:$'
 
 	render python monorepo
 	expect python-monorepo Taskfile.yml apps/.gitkeep libs/.gitkeep taskfiles/python.yml
 	reject python-monorepo package.json pnpm-workspace.yaml taskfiles/rust.yml
+	expect_match python-monorepo Taskfile.yml '^  fix:$'
 
 	render tauri single-package
 	expect tauri-single-package package.json src/App.tsx taskfiles/rust.yml taskfiles/typescript.yml
 	reject tauri-single-package apps libs taskfiles/python.yml Cargo.toml pnpm-workspace.yaml
 	reject_match tauri-single-package package.json '"(packageManager|dependencies|devDependencies)"'
 	expect_match tauri-single-package biome.json 'schemas/latest/schema.json'
+	expect_match tauri-single-package Taskfile.yml '^  fix:$'
 
 	render tauri monorepo workbench
 	expect tauri-monorepo package.json pnpm-workspace.yaml Cargo.toml apps/workbench/package.json packages/.gitkeep
@@ -26,6 +29,7 @@ main() {
 	reject_match tauri-monorepo package.json '"(packageManager|dependencies|devDependencies)"'
 	reject_match tauri-monorepo apps/workbench/package.json '"(packageManager|dependencies|devDependencies)"'
 	expect_match tauri-monorepo pnpm-workspace.yaml '^catalog: \{\}$'
+	expect_match tauri-monorepo Taskfile.yml '^  fix:$'
 }
 
 render() {
