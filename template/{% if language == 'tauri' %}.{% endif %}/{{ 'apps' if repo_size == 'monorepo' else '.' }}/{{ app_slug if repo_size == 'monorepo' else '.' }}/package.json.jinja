@@ -1,0 +1,11 @@
+{
+	"name": "{% if repo_size == 'monorepo' %}@{{ _folder_name }}/{{ app_slug }}{% else %}{{ _folder_name }}{% endif %}",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"tauri": "tauri"
+	}
+}

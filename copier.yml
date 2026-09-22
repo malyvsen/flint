@@ -1,11 +1,38 @@
 _subdirectory: template
 
+language:
+  type: str
+  help: Which application stack should this repo use?
+  choices:
+    Python: python
+    Tauri (React, TypeScript, and Rust): tauri
+
 repo_size:
   type: str
-  help: How many packages will this repo contain?
+  help: How many apps or packages will this repo contain?
   choices:
-    Single package: single-package
+    Single app or package: single-package
     Monorepo: monorepo
+
+app_slug:
+  type: str
+  help: What should the initial app directory be called?
+  default: desktop
+  when: "{{ language == 'tauri' and repo_size == 'monorepo' }}"
+  validator: >-
+    {% if not (app_slug | regex_search('^[a-z][a-z0-9-]*$')) %}
+    Use lowercase letters, digits, or dashes; start with a letter.
+    {% endif %}
+
+app_identifier:
+  type: str
+  help: What bundle identifier should the Tauri app use?
+  default: "app.{{ _folder_name | lower | replace('_', '-') }}.{{ app_slug }}"
+  when: "{{ language == 'tauri' }}"
+  validator: >-
+    {% if not (app_identifier | regex_search('^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$')) %}
+    Use at least 2 dot-separated segments containing letters, digits, or dashes.
+    {% endif %}
 
 _tasks:
   - command: git init -q
@@ -14,13 +41,116 @@ _tasks:
   - command: >-
       PY=$(uv python list --only-downloads | grep -E '^cpython-[0-9]+\.[0-9]+\.[0-9]+-' | head -1 | sed -E 's/^cpython-([0-9]+\.[0-9]+).*/\1/');
       uv init --bare --vcs none --python "$PY" && uv python pin "$PY"
-    when: "{{ repo_size == 'monorepo' }}"
+    when: "{{ language == 'python' and repo_size == 'monorepo' }}"
 
   # Single-package repo's root is the package itself; --package gives it a src layout.
   - command: >-
       PY=$(uv python list --only-downloads | grep -E '^cpython-[0-9]+\.[0-9]+\.[0-9]+-' | head -1 | sed -E 's/^cpython-([0-9]+\.[0-9]+).*/\1/');
       uv init --package --vcs none --python "$PY"
-    when: "{{ repo_size == 'single-package' }}"
+    when: "{{ language == 'python' and repo_size == 'single-package' }}"
 
   - command: uv add --dev ruff deptry ty pytest
+    when: "{{ language == 'python' }}"
+
+  - command: [pnpm, add, react, react-dom]
+    when: "{{ language == 'tauri' and repo_size == 'single-package' }}"
+
+  - command:
+      - pnpm
+      - add
+      - --save-dev
+      - "@biomejs/biome"
+      - "@tauri-apps/cli"
+      - "@types/node"
+      - "@types/react"
+      - "@types/react-dom"
+      - "@vitejs/plugin-react"
+      - knip
+      - typescript
+      - vite
+      - vitest
+    when: "{{ language == 'tauri' and repo_size == 'single-package' }}"
+
+  - command: [pnpm, add, --workspace-root, --save-dev, "@biomejs/biome", knip]
+    when: "{{ language == 'tauri' and repo_size == 'monorepo' }}"
+
+  - command:
+      - pnpm
+      - --filter
+      - "@{{ _folder_name }}/{{ app_slug }}"
+      - add
+      - --save-catalog
+      - react
+      - react-dom
+    when: "{{ language == 'tauri' and repo_size == 'monorepo' }}"
+
+  - command:
+      - pnpm
+      - --filter
+      - "@{{ _folder_name }}/{{ app_slug }}"
+      - add
+      - --save-dev
+      - --save-catalog
+      - "@tauri-apps/cli"
+      - "@types/node"
+      - "@types/react"
+      - "@types/react-dom"
+      - "@vitejs/plugin-react"
+      - typescript
+      - vite
+      - vitest
+    when: "{{ language == 'tauri' and repo_size == 'monorepo' }}"
+
+  - command: >-
+      PNPM_VERSION=$(pnpm view pnpm version)
+      && test -n "$PNPM_VERSION"
+      && pnpm pkg set "packageManager=pnpm@$PNPM_VERSION"
+    when: "{{ language == 'tauri' }}"
+
+  - command:
+      - pnpm
+      - exec
+      - tauri
+      - init
+      - --ci
+      - --app-name
+      - "{{ _folder_name }}"
+      - --window-title
+      - "{{ _folder_name }}"
+      - --frontend-dist
+      - ../dist
+      - --dev-url
+      - http://localhost:1420
+      - --before-dev-command
+      - pnpm dev
+      - --before-build-command
+      - pnpm build
+    working_directory: "{{ '.' if repo_size == 'single-package' else 'apps/' + app_slug }}"
+    when: "{{ language == 'tauri' }}"
+
+  - command:
+      - node
+      - "{{ _copier_conf.src_path }}/scripts/configure-tauri.mjs"
+      - "{{ 'src-tauri' if repo_size == 'single-package' else 'apps/' + app_slug + '/src-tauri' }}"
+      - "{{ app_identifier }}"
+      - "{{ _folder_name if repo_size == 'single-package' else app_slug }}"
+    when: "{{ language == 'tauri' }}"
+
+  - command: [pnpm, exec, biome, check, --write, --error-on-warnings, .]
+    when: "{{ language == 'tauri' }}"
+
+  - command:
+      - cargo
+      - fmt
+      - --manifest-path
+      - "{{ 'src-tauri/Cargo.toml' if repo_size == 'single-package' else 'Cargo.toml' }}"
+    when: "{{ language == 'tauri' }}"
+
+  - command:
+      - cargo
+      - generate-lockfile
+      - --manifest-path
+      - "{{ 'src-tauri/Cargo.toml' if repo_size == 'single-package' else 'Cargo.toml' }}"
+    when: "{{ language == 'tauri' }}"
+
   - command: git config core.hooksPath scripts/git-hooks

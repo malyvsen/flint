@@ -11,6 +11,7 @@ tasks:
     desc: Run all automated checks
     cmds:
       - task: check-dogfood
+      - task: check-template
 
   dogfood:
     desc: Regenerate flint's own agent instructions from the template
@@ -20,7 +21,7 @@ tasks:
     cmds:
       - |
         tmp=$(mktemp -d)
-        uv run copier copy --trust --skip-tasks --defaults --data repo_size=single-package --vcs-ref=HEAD -q . "$tmp"
+        uv run copier copy --trust --skip-tasks --defaults --data language=python --data repo_size=single-package --vcs-ref=HEAD -q . "$tmp"
         cp "$tmp/AGENTS.md" AGENTS.md
 
   check-dogfood:
@@ -30,8 +31,15 @@ tasks:
     cmds:
       - |
         tmp=$(mktemp -d)
-        uv run copier copy --trust --skip-tasks --defaults --data repo_size=single-package --vcs-ref=HEAD -q . "$tmp"
+        uv run copier copy --trust --skip-tasks --defaults --data language=python --data repo_size=single-package --vcs-ref=HEAD -q . "$tmp"
         diff AGENTS.md "$tmp/AGENTS.md"
+
+  check-template:
+    desc: Verify every template variant renders its expected layout
+    env:
+      PYTHONWARNINGS: ignore:Dirty template changes:UserWarning
+    cmds:
+      - bash scripts/check-template.sh
 
   new:
     desc: Create a new repository from the template

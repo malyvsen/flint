@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Every version shared by workspace projects, so those projects cannot drift apart.
+catalog: {}
+
+# Vite still lists esbuild as optional; its install script needs approval.
+allowBuilds:
+  esbuild: true
+
+minimumReleaseAge: 0

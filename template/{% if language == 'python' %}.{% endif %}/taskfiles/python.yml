@@ -11,7 +11,8 @@ tasks:
       - "**/*.py"
       - pyproject.toml
     cmds:
-      - uv run --no-sync pytest
+      # A new package has no tests yet; pytest uses exit code 5 for that valid state.
+      - uv run --no-sync pytest || test $? -eq 5
 
   ruff:
     desc: Check linting and formatting

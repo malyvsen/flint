@@ -1,0 +1,22 @@
+version: "3"
+
+includes:
+  rust:
+    taskfile: ../../taskfiles/rust.yml
+    dir: src-tauri
+  typescript: ../../taskfiles/typescript.yml
+
+tasks:
+  dev:
+    desc: Run the app in development mode
+    cmds:
+      - pnpm tauri dev
+
+  build:
+    desc: Bundle the app
+    cmds:
+      - pnpm tauri build -- --locked
+
+  check:
+    desc: Run all checks
+    deps: [rust:check, typescript:check]
