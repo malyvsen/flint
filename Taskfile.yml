@@ -35,7 +35,7 @@ tasks:
         diff AGENTS.md "$tmp/AGENTS.md"
 
   check-template:
-    desc: Verify every template variant renders its expected layout
+    desc: Verify template variants and generated workflows
     env:
       PYTHONWARNINGS: ignore:Dirty template changes:UserWarning
     cmds:

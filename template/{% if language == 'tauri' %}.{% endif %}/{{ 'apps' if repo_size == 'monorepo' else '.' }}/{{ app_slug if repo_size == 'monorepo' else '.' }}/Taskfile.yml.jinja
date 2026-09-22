@@ -1,0 +1,50 @@
+version: "3"
+
+includes:
+  tauri:
+    taskfile: {{ '../../' if repo_size == 'monorepo' else '' }}taskfiles/tauri.yml
+    flatten: true
+    vars:
+      ARTIFACT_NAME: {{ (app_slug if repo_size == 'monorepo' else _folder_name) | tojson }}
+  rust:
+    taskfile: {{ '../../' if repo_size == 'monorepo' else '' }}taskfiles/rust.yml
+    dir: src-tauri
+  typescript: {{ '../../' if repo_size == 'monorepo' else '' }}taskfiles/typescript.yml
+
+tasks:{% if repo_size == 'single-package' %}
+  init:
+    desc: Set up the development environment
+    deps: [prereqs]
+    cmds:
+      - git config core.hooksPath scripts/git-hooks
+      - pnpm install --frozen-lockfile{% endif %}
+
+  dev:
+    desc: Run the app in development mode
+    cmds:
+      - pnpm tauri dev
+
+  check:
+    desc: Run all checks
+    deps: [{% if repo_size == 'single-package' %}biome, knip, {% endif %}rust:check, typescript:check]{% if repo_size == 'single-package' %}
+
+  fix:
+    desc: Apply safe formatting and lint fixes
+    cmds:
+      - pnpm exec biome check --write --error-on-warnings .
+      - cargo fmt --manifest-path src-tauri/Cargo.toml
+
+  biome:
+    desc: Check linting and formatting across the workspace
+    cmds:
+      - pnpm exec biome check --error-on-warnings .
+
+  knip:
+    desc: Check for unused TypeScript dependencies and exports
+    cmds:
+      - pnpm exec knip
+
+  prereqs:
+    desc: Check that required programs are installed
+    cmds:
+      - bash scripts/check-prereqs.sh{% endif %}

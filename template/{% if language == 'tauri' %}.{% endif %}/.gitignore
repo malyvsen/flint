@@ -3,5 +3,6 @@
 .task/
 node_modules/
 dist/
+release/
 target/
 *.tsbuildinfo

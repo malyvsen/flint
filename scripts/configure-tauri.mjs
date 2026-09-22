@@ -13,6 +13,7 @@ configureMain(join(tauriDir, "src/main.rs"), packageName);
 function configureTauri(path, identifier) {
 	const config = JSON.parse(readFileSync(path, "utf8"));
 	config.identifier = identifier;
+	delete config.version;
 	writeFileSync(path, `${JSON.stringify(config, null, "\t")}\n`);
 }
 

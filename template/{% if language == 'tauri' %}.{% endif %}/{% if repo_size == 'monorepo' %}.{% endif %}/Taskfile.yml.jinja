@@ -1,56 +1,59 @@
 version: "3"
-{% if repo_size == 'single-package' %}
-includes:
-  rust:
-    taskfile: taskfiles/rust.yml
-    dir: src-tauri
-  typescript: taskfiles/typescript.yml
-{% endif %}
+
+vars:
+  DEFAULT_PROJECT: apps/{{ app_slug }}
+
 tasks:
   init:
     desc: Set up the development environment
     deps: [prereqs]
+    vars:
+      PROJECTS:
+        sh: node scripts/workspace-projects.mjs init
     cmds:
       - git config core.hooksPath scripts/git-hooks
       - pnpm install --frozen-lockfile
+      - for: { var: PROJECTS, as: PROJECT }
+        cmd: task -d {% raw %}{{.PROJECT}}{% endraw %} init
 
   check:
     desc: Run all automated checks
-{%- if repo_size == 'monorepo' %}
     deps: [biome, knip]
     vars:
       PROJECTS:
-        sh: find apps packages -mindepth 1 -maxdepth 2 -name Taskfile.yml -exec dirname {} \;
+        sh: node scripts/workspace-projects.mjs check
     cmds:
       - for: { var: PROJECTS, as: PROJECT }
         cmd: task -d {% raw %}{{.PROJECT}}{% endraw %} check
-{%- else %}
-    deps: [biome, knip, rust:check, typescript:check]
-{%- endif %}
 
   dev:
     desc: Run the app in development mode
     cmds:
-{%- if repo_size == 'monorepo' %}
-      - task -d apps/{{ app_slug }} dev
-{%- else %}
-      - pnpm tauri dev
-{%- endif %}
+      - task -d {% raw %}{{.DEFAULT_PROJECT}}{% endraw %} dev
 
   build:
-    desc: Bundle the app
+    desc: Bundle every project that ships
+    vars:
+      PROJECTS:
+        sh: node scripts/workspace-projects.mjs build
     cmds:
-{%- if repo_size == 'monorepo' %}
-      - task -d apps/{{ app_slug }} build
-{%- else %}
-      - pnpm tauri build -- --locked
-{%- endif %}
+      - for: { var: PROJECTS, as: PROJECT }
+        cmd: task -d {% raw %}{{.PROJECT}}{% endraw %} build
+
+  deploy:
+    desc: Deploy every project that ships
+    vars:
+      PROJECTS:
+        sh: node scripts/workspace-projects.mjs deploy
+    cmds:
+      - for: { var: PROJECTS, as: PROJECT }
+        cmd: task -d {% raw %}{{.PROJECT}}{% endraw %} deploy
 
   fix:
     desc: Apply safe formatting and lint fixes
     cmds:
       - pnpm exec biome check --write --error-on-warnings .
-      - cargo fmt {% if repo_size == 'single-package' %}--manifest-path src-tauri/Cargo.toml{% else %}--all{% endif %}
+      - cargo fmt --all
 
   biome:
     desc: Check linting and formatting across the workspace

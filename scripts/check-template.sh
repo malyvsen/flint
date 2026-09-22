@@ -7,34 +7,25 @@ trap 'rm -rf "$outputs"' EXIT
 
 main() {
 	render python single-package
-	expect python-single-package Taskfile.yml taskfiles/python.yml
-	reject python-single-package package.json apps libs taskfiles/rust.yml
-	expect_match python-single-package Taskfile.yml '^  fix:$'
-
 	render python monorepo
-	expect python-monorepo Taskfile.yml apps/.gitkeep libs/.gitkeep taskfiles/python.yml
-	reject python-monorepo package.json pnpm-workspace.yaml taskfiles/rust.yml
-	expect_match python-monorepo Taskfile.yml '^  fix:$'
-
 	render tauri single-package
-	expect tauri-single-package package.json src/App.tsx taskfiles/rust.yml taskfiles/typescript.yml
-	reject tauri-single-package apps libs taskfiles/python.yml Cargo.toml pnpm-workspace.yaml
-	reject_match tauri-single-package package.json '"(packageManager|dependencies|devDependencies)"'
-	expect_match tauri-single-package biome.json 'schemas/latest/schema.json'
-	expect_match tauri-single-package Taskfile.yml '^  fix:$'
-
 	render tauri monorepo workbench
-	expect tauri-monorepo package.json pnpm-workspace.yaml Cargo.toml apps/workbench/package.json packages/.gitkeep
-	reject tauri-monorepo apps/desktop libs taskfiles/python.yml src
-	reject_match tauri-monorepo package.json '"(packageManager|dependencies|devDependencies)"'
-	reject_match tauri-monorepo apps/workbench/package.json '"(packageManager|dependencies|devDependencies)"'
-	expect_match tauri-monorepo pnpm-workspace.yaml '^catalog: \{\}$'
-	expect_match tauri-monorepo Taskfile.yml '^  fix:$'
+	render tauri single-package desktop null
+
+	for check in \
+		template-layout \
+		configure-tauri \
+		tauri-version \
+		tauri-delivery \
+		workspace-tasks; do
+		bash "$root/scripts/checks/$check.sh" "$root" "$outputs"
+	done
 }
 
 render() {
 	local language="$1"
 	local size="$2"
+	local output_name="${4:-$language-$size}"
 	local data=(
 		--data "language=$language"
 		--data "repo_size=$size"
@@ -54,49 +45,8 @@ render() {
 		--vcs-ref=HEAD \
 		-q \
 		"$root" \
-		"$outputs/$language-$size"
-}
-
-expect() {
-	local output="$1"
-	shift
-	for path in "$@"; do
-		if [[ ! -e "$outputs/$output/$path" ]]; then
-			echo "$output should contain $path" >&2
-			exit 1
-		fi
-	done
-}
-
-reject() {
-	local output="$1"
-	shift
-	for path in "$@"; do
-		if [[ -e "$outputs/$output/$path" ]]; then
-			echo "$output should not contain $path" >&2
-			exit 1
-		fi
-	done
-}
-
-expect_match() {
-	local output="$1"
-	local path="$2"
-	local pattern="$3"
-	if ! grep -Eq "$pattern" "$outputs/$output/$path"; then
-		echo "$output/$path should match $pattern" >&2
-		exit 1
-	fi
-}
-
-reject_match() {
-	local output="$1"
-	local path="$2"
-	local pattern="$3"
-	if grep -Eq "$pattern" "$outputs/$output/$path"; then
-		echo "$output/$path should not match $pattern" >&2
-		exit 1
-	fi
+		"$outputs/$output_name"
+	git -C "$outputs/$output_name" init -q
 }
 
 main "$@"
