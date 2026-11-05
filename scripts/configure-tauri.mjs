@@ -21,8 +21,8 @@ function configureCargo(path, packageName) {
 	const cargo = readFileSync(path, "utf8");
 	const libName = rustIdentifier(`${packageName}_lib`);
 	const configured = [
-		['name = "app"', `name = "${packageName}"`],
-		['name = "app_lib"', `name = "${libName}"`],
+		[/^name = "app"$/m, `name = "${packageName}"`],
+		[/^name = "app_lib"$/m, `name = "${libName}"`],
 		[/^rust-version = "[^"]*"\n/m, ""],
 	].reduce((source, [from, to]) => replaceOnce(source, from, to), cargo);
 	writeFileSync(path, configured);
@@ -41,21 +41,9 @@ function rustIdentifier(value) {
 }
 
 function replaceOnce(source, from, to) {
-	if (typeof from === "string") {
-		const first = source.indexOf(from);
-		if (first === -1 || source.indexOf(from, first + from.length) !== -1) {
-			throw new Error(`expected exactly one ${JSON.stringify(from)}`);
-		}
-		return source.replace(from, to);
-	}
-	const matches = source.match(globalCopy(from)) ?? [];
-	if (matches.length !== 1) {
+	// NB: `from` must not contain capture groups; split() includes them in the result.
+	if (source.split(from).length - 1 !== 1) {
 		throw new Error(`expected exactly one ${from}`);
 	}
 	return source.replace(from, to);
-}
-
-function globalCopy(pattern) {
-	const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
-	return new RegExp(pattern.source, flags);
 }
