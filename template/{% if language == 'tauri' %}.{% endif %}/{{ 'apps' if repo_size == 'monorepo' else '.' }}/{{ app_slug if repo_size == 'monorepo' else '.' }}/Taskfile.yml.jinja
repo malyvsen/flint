@@ -6,6 +6,7 @@ includes:
     flatten: true
     vars:
       ARTIFACT_NAME: {{ (app_slug if repo_size == 'monorepo' else _folder_name) | tojson }}
+      LOG_FILE: "$HOME/Library/Logs/{{ app_identifier }}/{{ app_slug if repo_size == 'monorepo' else _folder_name }}.log"
   rust:
     taskfile: {{ '../../' if repo_size == 'monorepo' else '' }}taskfiles/rust.yml
     dir: src-tauri

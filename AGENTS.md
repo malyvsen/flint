@@ -71,6 +71,10 @@ Instead of asking the LLM politely to generate dates in YYYY-MM-DD format, use a
 
 Prompts should only include information that the LLM needs to know *right now*. If the need for information is conditional, add it under that condition only.
 
+# Logging
+
+Use the standard `logging` module for diagnostics rather than `print`.
+
 # Development tooling rules
 
 Use Task when possible (e.g. `task dev` instead of `cargo tauri dev`).

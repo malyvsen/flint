@@ -18,6 +18,12 @@ tasks:
     cmds:
       - node "{{.WORKSPACE}}/scripts/tauri/install-macos.mjs" "{{.ARTIFACT_DIR}}" /Applications
 
+  logs:
+    desc: Follow the app log
+    platforms: [darwin]
+    cmds:
+      - tail -F "{{.LOG_FILE}}"
+
   bump:
     desc: Raise this app's version (patch, minor, or major)
     cmds:

@@ -77,6 +77,14 @@ Instead of asking the LLM politely to generate dates in YYYY-MM-DD format, use a
 
 Prompts should only include information that the LLM needs to know *right now*. If the need for information is conditional, add it under that condition only.
 
+# Logging
+
+{% if language == 'tauri' -%}
+Log to stdout and a rotating file in the platform log directory; follow the log with `task logs`. Use the `log` crate in Rust and `console` in the frontend; frontend console output is mirrored into the same file.
+{%- elif language == 'python' -%}
+Use the standard `logging` module for diagnostics rather than `print`.
+{%- endif %}
+
 # Development tooling rules
 
 Use Task when possible (e.g. `task dev` instead of `cargo tauri dev`).

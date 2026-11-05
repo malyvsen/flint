@@ -22,6 +22,7 @@ expect_paths "$tauri_single" \
 	scripts/tauri/bump.mjs \
 	scripts/tauri/install-macos.mjs \
 	src/App.tsx \
+	src/logger.ts \
 	taskfiles/rust.yml \
 	taskfiles/tauri.yml \
 	taskfiles/typescript.yml
@@ -34,10 +35,14 @@ reject_paths "$tauri_single" \
 	taskfiles/python.yml
 generated_package_fields='"(packageManager|version|dependencies|devDependencies)"'
 reject_match "$tauri_single" package.json "$generated_package_fields"
+reject_match "$tauri_single" package.json '"@tauri-apps/plugin-log"'
+expect_match "$tauri_single" src/main.tsx 'from "\./logger"'
+expect_match "$tauri_single" src/main.tsx 'initLogging\(\)'
 expect_match "$tauri_single" biome.json 'schemas/latest/schema.json'
 expect_task "$tauri_single" build
 expect_task "$tauri_single" bump
 expect_task "$tauri_single" deploy
+expect_task "$tauri_single" logs
 
 null_named="$outputs/null"
 expect_match "$null_named" Taskfile.yml '^      ARTIFACT_NAME: "null"$'
@@ -49,6 +54,7 @@ expect_paths "$tauri_mono" \
 	Taskfile.yml \
 	apps/workbench/Taskfile.yml \
 	apps/workbench/package.json \
+	apps/workbench/src/logger.ts \
 	package.json \
 	packages/.gitkeep \
 	pnpm-workspace.yaml \
@@ -60,6 +66,9 @@ expect_paths "$tauri_mono" \
 reject_paths "$tauri_mono" apps/desktop libs src taskfiles/python.yml
 reject_match "$tauri_mono" package.json "$generated_package_fields"
 reject_match "$tauri_mono/apps/workbench" package.json "$generated_package_fields"
+reject_match "$tauri_mono/apps/workbench" package.json '"@tauri-apps/plugin-log"'
+expect_match "$tauri_mono" apps/workbench/src/main.tsx 'from "\./logger"'
+expect_match "$tauri_mono" apps/workbench/src/main.tsx 'initLogging\(\)'
 expect_match "$tauri_mono" pnpm-workspace.yaml '^catalog: \{\}$'
 expect_match "$tauri_mono" Taskfile.yml '^  DEFAULT_PROJECT: apps/workbench$'
 expect_task "$tauri_mono" build
@@ -68,3 +77,4 @@ reject_task "$tauri_mono" bump
 expect_task "$tauri_mono/apps/workbench" build
 expect_task "$tauri_mono/apps/workbench" bump
 expect_task "$tauri_mono/apps/workbench" deploy
+expect_task "$tauri_mono/apps/workbench" logs

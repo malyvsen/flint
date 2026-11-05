@@ -52,7 +52,7 @@ _tasks:
   - command: uv add --dev ruff deptry ty pytest
     when: "{{ language == 'python' }}"
 
-  - command: [pnpm, add, react, react-dom]
+  - command: [pnpm, add, react, react-dom, "@tauri-apps/plugin-log"]
     when: "{{ language == 'tauri' and repo_size == 'single-package' }}"
 
   - command:
@@ -82,6 +82,7 @@ _tasks:
       - --save-catalog
       - react
       - react-dom
+      - "@tauri-apps/plugin-log"
     when: "{{ language == 'tauri' and repo_size == 'monorepo' }}"
 
   - command:
