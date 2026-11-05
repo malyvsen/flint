@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Copier resolves a dirty template through git; inherited worktree paths make it read HEAD instead.
+unset GIT_DIR GIT_INDEX_FILE
+
 task check
