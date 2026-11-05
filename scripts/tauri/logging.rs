@@ -14,11 +14,6 @@ pub fn plugin() -> tauri::plugin::TauriPlugin<tauri::Wry> {
         .max_file_size(MAX_FILE_SIZE)
         .timezone_strategy(tauri_plugin_log::TimezoneStrategy::UseLocal)
         .level(level())
-        .level_for("hyper", log::LevelFilter::Off)
-        .level_for("tao", log::LevelFilter::Off)
-        .level_for("wry", log::LevelFilter::Off)
-        .level_for("reqwest", log::LevelFilter::Warn)
-        .level_for("rustls", log::LevelFilter::Warn)
         .build()
 }
 
