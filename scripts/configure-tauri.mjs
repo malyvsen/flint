@@ -69,14 +69,19 @@ function configureLogging(tauriDir, packageName) {
 }
 
 function configureLib(path) {
-	const lib = readFileSync(path, "utf8");
-	const setup =
-		/\.setup\(\|app\| \{\s*if cfg!\(debug_assertions\) \{\s*app\s*\.handle\(\)\s*\.plugin\(\s*tauri_plugin_log::Builder::default\(\)\s*\.level\(log::LevelFilter::Info\)\s*\.build\(\),?\s*\)\?;\s*\}\s*Ok\(\(\)\)\s*\}\)/;
-	const configured = lib.replace(setup, ".plugin(logging::plugin())");
-	if (configured === lib) {
-		throw new Error("expected a generated log setup in src/lib.rs");
-	}
-	writeFileSync(path, `mod logging;\n\n${configured}`);
+	const lib = [
+		"mod logging;",
+		"",
+		"#[cfg_attr(mobile, tauri::mobile_entry_point)]",
+		"pub fn run() {",
+		"    tauri::Builder::default()",
+		"        .plugin(logging::plugin())",
+		"        .run(tauri::generate_context!())",
+		'        .expect("error while building tauri application");',
+		"}",
+		"",
+	].join("\n");
+	writeFileSync(path, lib);
 }
 
 function configureCapabilities(path) {
