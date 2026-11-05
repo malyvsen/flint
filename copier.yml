@@ -102,7 +102,7 @@ _tasks:
     when: "{{ language == 'tauri' and repo_size == 'monorepo' }}"
 
   - command: >-
-      PNPM_VERSION=$(pnpm view pnpm version)
+      PNPM_VERSION=$(pnpm --version)
       && test -n "$PNPM_VERSION"
       && pnpm pkg set "packageManager=pnpm@$PNPM_VERSION"
     when: "{{ language == 'tauri' }}"

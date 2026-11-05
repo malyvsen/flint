@@ -23,8 +23,7 @@ function configureCargo(path, packageName) {
 	const configured = [
 		['name = "app"', `name = "${packageName}"`],
 		['name = "app_lib"', `name = "${libName}"`],
-		['edition = "2021"', 'edition = "2024"'],
-		['rust-version = "1.77.2"\n', ""],
+		[/^rust-version = "[^"]*"\n/m, ""],
 	].reduce((source, [from, to]) => replaceOnce(source, from, to), cargo);
 	writeFileSync(path, configured);
 }
@@ -42,9 +41,21 @@ function rustIdentifier(value) {
 }
 
 function replaceOnce(source, from, to) {
-	const first = source.indexOf(from);
-	if (first === -1 || source.indexOf(from, first + from.length) !== -1) {
-		throw new Error(`expected exactly one ${JSON.stringify(from)}`);
+	if (typeof from === "string") {
+		const first = source.indexOf(from);
+		if (first === -1 || source.indexOf(from, first + from.length) !== -1) {
+			throw new Error(`expected exactly one ${JSON.stringify(from)}`);
+		}
+		return source.replace(from, to);
+	}
+	const matches = source.match(globalCopy(from)) ?? [];
+	if (matches.length !== 1) {
+		throw new Error(`expected exactly one ${from}`);
 	}
 	return source.replace(from, to);
+}
+
+function globalCopy(pattern) {
+	const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
+	return new RegExp(pattern.source, flags);
 }
