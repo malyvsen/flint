@@ -20,9 +20,8 @@ tasks:
 
   logs:
     desc: Follow the app log
-    platforms: [darwin]
     cmds:
-      - tail -F "{{.LOG_FILE}}"
+      - node "{{.WORKSPACE}}/scripts/tauri/logs.mjs" "{{.APP_IDENTIFIER}}" "{{.ARTIFACT_NAME}}"
 
   bump:
     desc: Raise this app's version (patch, minor, or major)

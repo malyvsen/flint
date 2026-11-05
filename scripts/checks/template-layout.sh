@@ -21,6 +21,7 @@ expect_paths "$tauri_single" \
 	scripts/tauri/build.mjs \
 	scripts/tauri/bump.mjs \
 	scripts/tauri/install-macos.mjs \
+	scripts/tauri/logs.mjs \
 	src/App.tsx \
 	src/logger.ts \
 	taskfiles/rust.yml \
@@ -39,6 +40,8 @@ reject_match "$tauri_single" package.json '"@tauri-apps/plugin-log"'
 expect_match "$tauri_single" src/main.tsx 'from "\./logger"'
 expect_match "$tauri_single" src/main.tsx 'initLogging\(\)'
 expect_match "$tauri_single" biome.json 'schemas/latest/schema.json'
+expect_match "$tauri_single" taskfiles/tauri.yml 'logs\.mjs'
+expect_match "$tauri_single" Taskfile.yml 'APP_IDENTIFIER:'
 expect_task "$tauri_single" build
 expect_task "$tauri_single" bump
 expect_task "$tauri_single" deploy
@@ -61,6 +64,7 @@ expect_paths "$tauri_mono" \
 	scripts/tauri/build.mjs \
 	scripts/tauri/bump.mjs \
 	scripts/tauri/install-macos.mjs \
+	scripts/tauri/logs.mjs \
 	scripts/workspace-projects.mjs \
 	taskfiles/tauri.yml
 reject_paths "$tauri_mono" apps/desktop libs src taskfiles/python.yml
@@ -71,6 +75,7 @@ expect_match "$tauri_mono" apps/workbench/src/main.tsx 'from "\./logger"'
 expect_match "$tauri_mono" apps/workbench/src/main.tsx 'initLogging\(\)'
 expect_match "$tauri_mono" pnpm-workspace.yaml '^catalog: \{\}$'
 expect_match "$tauri_mono" Taskfile.yml '^  DEFAULT_PROJECT: apps/workbench$'
+expect_match "$tauri_mono" apps/workbench/Taskfile.yml 'APP_IDENTIFIER:'
 expect_task "$tauri_mono" build
 expect_task "$tauri_mono" deploy
 reject_task "$tauri_mono" bump
