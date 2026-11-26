@@ -155,3 +155,7 @@ _tasks:
     when: "{{ language == 'tauri' }}"
 
   - command: git config core.hooksPath scripts/git-hooks
+
+  - command: >-
+      if ! git rev-parse --verify HEAD >/dev/null 2>&1;
+      then git add -A && git commit -m "chore: initialize with flint"; fi
