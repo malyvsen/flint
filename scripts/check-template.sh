@@ -17,6 +17,7 @@ main() {
 		configure-tauri \
 		tauri-version \
 		tauri-delivery \
+		initial-commit \
 		workspace-tasks; do
 		bash "$root/scripts/checks/$check.sh" "$root" "$outputs"
 	done
